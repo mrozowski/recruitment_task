@@ -158,9 +158,11 @@ public class JiraHttpClient {
 
   private static void displayError(CloseableHttpResponse response, int statusCode) throws IOException {
     String responseBody = EntityUtils.toString(response.getEntity());
-    JiraErrorResponse errorResponse = OBJECT_MAPPER.readValue(responseBody, JiraErrorResponse.class);
     System.out.println("Error code: " + statusCode);
-    errorResponse.getErrorMessages().forEach(message -> System.out.println("Error message: " + message));
-    errorResponse.getErrors().forEach((name, value) -> System.out.printf("Error message: %s - %s%n", name, value));
+    if (!responseBody.isEmpty()){
+      JiraErrorResponse errorResponse = OBJECT_MAPPER.readValue(responseBody, JiraErrorResponse.class);
+      errorResponse.getErrorMessages().forEach(message -> System.out.println("Error message: " + message));
+      errorResponse.getErrors().forEach((name, value) -> System.out.printf("Error message: %s - %s%n", name, value));
+    }
   }
 }

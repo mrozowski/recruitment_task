@@ -30,11 +30,15 @@ public class JiraSynchronizer {
    */
   public void moveTasksToOtherProject() {
     List<JiraIssueResponse> jiraIssues = jiraHttpClient.fetchIssuesByProjectKey(sourceProject);
-    System.out.printf("Found %d tickets. Start moving tickets to [%s] project%n", jiraIssues.size(), targetProject);
+    if(jiraIssues.isEmpty()){
+      System.out.printf("No tickets found in [%s] project%n", sourceProject);
+      return;
+    }
 
+    System.out.printf("Found %d tickets. Start moving tickets to [%s] project%n", jiraIssues.size(), targetProject);
     for (var jiraIssue : jiraIssues) {
-      var createIssueRequest = maptoJiraCreateIssueRequest(targetProject, jiraIssue);
-      var status = jiraIssue.getStatusName();
+      JiraCreateIssueRequest createIssueRequest = maptoJiraCreateIssueRequest(targetProject, jiraIssue);
+      String status = jiraIssue.getStatusName();
       List<JiraCommentResponse> comments = jiraHttpClient.fetchComments(jiraIssue.getKey());
 
       System.out.printf("Recreating ticket [%s] in [%s] project%n", jiraIssue.getKey(), targetProject);

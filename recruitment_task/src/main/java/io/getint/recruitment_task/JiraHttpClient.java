@@ -81,7 +81,7 @@ public class JiraHttpClient {
   }
 
   void updateIssue(JiraUpdateStatusRequest updateIssueRequest, String issueKey) {
-    var updateIssueUrl = String.format(transitionIssueTemplateUrl, issueKey);
+    String updateIssueUrl = String.format(transitionIssueTemplateUrl, issueKey);
     String jsonRequestBody = OBJECT_MAPPER.valueToTree(updateIssueRequest).toPrettyString();
     HttpPost httpPost = createHttpPostRequest(jsonRequestBody, baseUrl + updateIssueUrl);
 
@@ -99,8 +99,8 @@ public class JiraHttpClient {
   }
 
   List<JiraCommentResponse> fetchComments(String issueKey) {
-    var updateIssueUrl = String.format(commentsTemplateUrl, issueKey);
-    var httpRequest = new HttpGet(baseUrl + updateIssueUrl);
+    String updateIssueUrl = String.format(commentsTemplateUrl, issueKey);
+    HttpGet httpRequest = new HttpGet(baseUrl + updateIssueUrl);
     setBasicAuthentication(httpRequest);
 
     System.out.printf("Fetching comments from ticket [%s]%n", issueKey);
@@ -139,7 +139,7 @@ public class JiraHttpClient {
   }
 
   private HttpPost createHttpPostRequest(String requestBody, String url) {
-    var httpPost = new HttpPost(url);
+    HttpPost httpPost = new HttpPost(url);
     setBasicAuthentication(httpPost);
     httpPost.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
     httpPost.setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
@@ -157,8 +157,10 @@ public class JiraHttpClient {
   }
 
   private static void displayError(CloseableHttpResponse response, int statusCode) throws IOException {
-    var responseBody = EntityUtils.toString(response.getEntity());
-    System.out.println("Error: " + statusCode);
-    System.out.println("Response Body: " + responseBody);
+    String responseBody = EntityUtils.toString(response.getEntity());
+    JiraErrorResponse errorResponse = OBJECT_MAPPER.readValue(responseBody, JiraErrorResponse.class);
+    System.out.println("Error code: " + statusCode);
+    errorResponse.getErrorMessages().forEach(message -> System.out.println("Error message: " + message));
+    errorResponse.getErrors().forEach((name, value) -> System.out.printf("Error message: %s - %s%n", name, value));
   }
 }

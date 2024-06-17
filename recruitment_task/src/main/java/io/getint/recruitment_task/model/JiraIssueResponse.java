@@ -2,24 +2,38 @@ package io.getint.recruitment_task.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+import java.util.Optional;
+
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JiraIssueResponse {
 
-  public String id = "";
-  public String key = "";
-  public Fields fields;
+  private String id = "";
+  private String key = "";
+  private Fields fields;
 
+  public String getStatusName(){
+    return fields.status.getName();
+  }
+
+  public Optional<String> getAssigneeId(){
+    return Optional.ofNullable(fields.assignee).map(assignee -> assignee.accountId);
+  }
+
+  @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Fields {
-    public String summary;
-    public String description;
+    private String summary;
+    private String description;
 
     @JsonProperty("issuetype")
-    public IssueType issueType;
-    public Priority priority;
-    public Status status;
-    public Project project;
+    private IssueType issueType;
+    private Priority priority;
+    private Status status;
+    private Project project;
+    private Assignee assignee;
 
     @Override
     public String toString() {
@@ -34,24 +48,34 @@ public class JiraIssueResponse {
     }
   }
 
+  @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Status {
-    public String name;
+    private String name;
   }
 
+  @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Priority {
-    public String name;
+    private String name;
   }
 
+  @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class IssueType {
-    public String name;
+    private String name;
   }
 
+  @Data
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Project {
-    public String key;
+    private String key;
+  }
+
+  @Data
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static class Assignee {
+    private String accountId;
   }
 
   @Override

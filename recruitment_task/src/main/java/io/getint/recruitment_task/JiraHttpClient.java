@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.getint.recruitment_task.exception.JiraApiConnectionException;
 import io.getint.recruitment_task.model.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -157,9 +158,10 @@ public class JiraHttpClient {
   }
 
   private static void displayError(CloseableHttpResponse response, int statusCode) throws IOException {
-    String responseBody = EntityUtils.toString(response.getEntity());
     System.out.println("Error code: " + statusCode);
-    if (!responseBody.isEmpty()){
+    HttpEntity responseEntity = response.getEntity();
+    if(responseEntity != null){
+      String responseBody = EntityUtils.toString(responseEntity);
       JiraErrorResponse errorResponse = OBJECT_MAPPER.readValue(responseBody, JiraErrorResponse.class);
       errorResponse.getErrorMessages().forEach(message -> System.out.println("Error message: " + message));
       errorResponse.getErrors().forEach((name, value) -> System.out.printf("Error message: %s - %s%n", name, value));
